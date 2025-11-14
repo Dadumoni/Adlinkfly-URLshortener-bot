@@ -23,7 +23,7 @@ SHORTENER_DOMAIN = ""
 WEBHOOK_URL = os.getenv("WEBHOOK_URL")
 
 # MongoDB Configuration
-MONGO_URI = os.getenv("MONGO_URI", "")
+MONGO_URI = os.getenv("")
 DB_NAME = "telegram_bot"
 COLLECTION_NAME = "users"
 LINKS_COLLECTION_NAME = "shortened_links"
@@ -285,14 +285,12 @@ async def initialize_app():
     await app.initialize()
 
 # For Vercel deployment
-async def handler(request):
+async def handler(update):
     try:
+        global app
         if app is None:
             await initialize_app()
         
-        update = Update.de_json(await request.json(), app.bot)
         await app.process_update(update)
-        return {"statusCode": 200}
     except Exception as e:
         logger.error(f"Handler error: {e}")
-        return {"statusCode": 500, "body": str(e)}
